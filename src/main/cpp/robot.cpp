@@ -38,15 +38,42 @@ void RobotClass::competition_initialize() {}
 //              Only runs when the robot is in autonomous mode              //
 //////////////////////////////////////////////////////////////////////////////
 void RobotClass::autonomous() {
+    std::shared_ptr<AsyncPositionController<double, double>> fourBarControl =
+        AsyncPosControllerBuilder().withMotor(-19).build();
+    
+    std::shared_ptr<AsyncPositionController<double, double>> fingerControl =
+        AsyncPosControllerBuilder().withMotor(-12).build();
+
     std::shared_ptr<OdomChassisController> chassis = 
         ChassisControllerBuilder()
-            .withMotors({drivetrainFrontLeft, drivetrainBackLeft}, {-drivetrainFrontRight, -drivetrainBackRight})
+            .withMotors(-20, -11, -1, -10)
             .withDimensions(AbstractMotor::gearset::blue, {{4_in, 11.5_in}, imev5BlueTPR})
             .withOdometry()
             .buildOdometry();
 
+    chassis->setMaxVelocity(600);
     chassis->setState({0_in, 0_in, 0_deg});
-    chassis->driveToPoint({0_ft, 1_ft});
+    fourBarControl->setTarget(150);
+    chassis->moveDistanceAsync(8.7_ft);
+    pros::delay(1000);
+    fingerControl->setTarget(600);
+    chassis->waitUntilSettled();
+    chassis->moveDistance(-5.5_ft);
+    chassis->setMaxVelocity(400);
+    chassis->turnAngle(170_deg);
+    fingerControl->setTarget(100);
+    pros::delay(200);
+    chassis->setMaxVelocity(600);
+    chassis->moveDistance(1_ft);
+    chassis->moveDistance(-1_ft);
+    chassis->setMaxVelocity(400);
+    chassis->turnAngle(-268_deg);
+    chassis->setMaxVelocity(600);
+    chassis->moveDistanceAsync(8.3_ft);
+    pros::delay(1100);
+    fingerControl->setTarget(600);
+    chassis->waitUntilSettled();
+    chassis->moveDistance(-8.5_ft);
 }
 
 //////////////////////////////////////////////////////////////////////////////

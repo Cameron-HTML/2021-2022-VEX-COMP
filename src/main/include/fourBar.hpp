@@ -11,7 +11,7 @@ using namespace okapi;
 
 class FourBarClass {
     private:
-        pros::Motor fourBarMotor;
+        //pros::Motor fourBarMotor;
 
     public:
         FourBarClass();

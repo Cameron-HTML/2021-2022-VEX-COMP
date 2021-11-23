@@ -1,12 +1,12 @@
-// Include drivetrain header file
-#include "../include/fourBar.hpp"
-#include "../include/defines.h"
+// // Include drivetrain header file
+// #include "../include/fourBar.hpp"
+// #include "../include/defines.h"
 
-FourBarClass::FourBarClass() :
+// FourBarClass::FourBarClass() :
 
-{
+// {
 
-}
+// }
 
-void FourBarClass::update() {
-}
+// void FourBarClass::update() {
+// }
