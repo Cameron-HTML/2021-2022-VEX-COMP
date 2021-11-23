@@ -53,6 +53,6 @@ void opcontrol() {
     while(true) {
         Main.Robot->opcontrol();
 
-        delay(20);
+        pros::delay(20);
     }
 }

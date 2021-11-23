@@ -1,7 +1,6 @@
 #define drivetrainFrontLeft 1
-#define drivetrainBackLeft 2
+#define drivetrainBackLeft 10
+#define drivetrainFrontRight 11
+#define drivetrainBackRight 20
 
-#define drivetrainFrontRight 3
-#define drivetrainBackRight 4
-
-#define inertialSensorPort 5
+#define fourBarMotor 2

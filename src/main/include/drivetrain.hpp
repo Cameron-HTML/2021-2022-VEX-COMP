@@ -3,20 +3,20 @@
 
 // Include header files
 #include "api.h"
+#include "okapi/api.hpp"
 
 // Namespaces
-using namespace pros;
-using namespace pros::literals;
 using namespace std;
+using namespace okapi;
 
 class DrivetrainClass {
     private:
-        Motor frontLeftMotor;
-        Motor backLeftMotor;
-        Motor frontRightMotor;
-        Motor backRightMotor;
+        pros::Motor frontLeftMotor;
+        pros::Motor backLeftMotor;
+        pros::Motor frontRightMotor;
+        pros::Motor backRightMotor;
 
-        Imu inertialSensor;
+        shared_ptr<OdomChassisController> chassis;
     public:
         DrivetrainClass();
 
