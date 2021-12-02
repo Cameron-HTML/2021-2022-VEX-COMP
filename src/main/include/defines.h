@@ -1,7 +1,13 @@
-#define drivetrainFrontLeft 20
-#define drivetrainBackLeft 10
+#define wheelCircum 41.6696578277
 
-#define drivetrainFrontRight 11
-#define drivetrainBackRight 1
+#define drivetrainFrontLeft 1
+#define drivetrainBackLeft 11
 
-#define fourBarMotor 2
+#define drivetrainFrontRight 5
+#define drivetrainBackRight 20
+
+#define fourBarMotor 15
+
+#define fingerMotor 6
+
+#define IMUSensor 9

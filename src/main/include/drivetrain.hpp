@@ -16,13 +16,20 @@ class DrivetrainClass {
         pros::Motor frontRightMotor;
         pros::Motor backRightMotor;
 
-        shared_ptr<OdomChassisController> chassis;
+        pros::Imu IMU;
     public:
         DrivetrainClass();
 
         void driveTrainLeft(int speed);
         void driveTrainRight(int speed);
         void driveTrainTurn(int speed);
+
+        int timerValue(float seconds);
+        float inchToTicks(float inch);
+        void goToHeading(float target, float waitTime, int maxPower);
+        void driveDistance(float target, float heading, float waitTime, int maxPower);
+        
+        float getHeading();
 
         void update(int leftVal, int rightVal);
         void hardReset();
