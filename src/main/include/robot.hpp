@@ -9,6 +9,7 @@
 #include "okapi/api.hpp"
 
 #include "../include/drivetrain.hpp"
+#include "../include/lift.hpp"
 
 // Namespaces
 using namespace std;
@@ -29,6 +30,7 @@ class RobotClass {
     public:
         // Init pointers
         DrivetrainClass* Drivetrain;
+        LiftClass* Lift;
 
         RobotClass();
         static RobotClass* Get() {return TheRobot;}

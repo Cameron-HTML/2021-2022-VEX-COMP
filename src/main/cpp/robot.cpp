@@ -12,6 +12,7 @@ RobotClass::RobotClass() :
     partner(pros::E_CONTROLLER_PARTNER)
 {
     Drivetrain = new DrivetrainClass();
+    Lift = new LiftClass();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -20,6 +21,7 @@ RobotClass::RobotClass() :
 //////////////////////////////////////////////////////////////////////////////
 void RobotClass::initialize() {
     Drivetrain->hardReset();
+    master.rumble(". . .");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -38,45 +40,33 @@ void RobotClass::competition_initialize() {}
 //                                Autonomous                                //
 //              Only runs when the robot is in autonomous mode              //
 //////////////////////////////////////////////////////////////////////////////
-void RobotClass::autonomous() {
-    Drivetrain->hardReset();
-
-    std::shared_ptr<AsyncPositionController<double, double>> fourBarControl =
-        AsyncPosControllerBuilder().withMotor(-15).build();
-    
-    std::shared_ptr<AsyncPositionController<double, double>> fingerControl =
-        AsyncPosControllerBuilder().withMotor(-7).build();
-
-    std::shared_ptr<OdomChassisController> chassis = 
-        ChassisControllerBuilder()
-            .withMotors(1, 5, 20, 11)
-            .withDimensions(AbstractMotor::gearset::blue, {{4_in, 11.5_in}, imev5BlueTPR})
-            .withOdometry()
-            .buildOdometry();
-
-    chassis->setMaxVelocity(600);
-    chassis->setState({0_in, 0_in, 0_deg});
-    fourBarControl->setTarget(60);
-    chassis->moveDistanceAsync(8.5_ft);
-    pros::delay(1000);
-    fingerControl->setTarget(700);
-    chassis->waitUntilSettled();
-    chassis->moveDistance(-5.7_ft);
-    chassis->setMaxVelocity(400);
-    Drivetrain->goToHeading(55, 1000, 127);
-    fingerControl->setTarget(100);
-    pros::delay(200);
-    chassis->setMaxVelocity(600);
-    chassis->moveDistance(1_ft);
-    chassis->moveDistance(-.5_ft);
-    chassis->setMaxVelocity(400);
-    Drivetrain->goToHeading(325, 2000, 127);
-    chassis->setMaxVelocity(550);
-    chassis->moveDistanceAsync(8.9_ft);
-    pros::delay(1100);
-    fingerControl->setTarget(700);
-    chassis->waitUntilSettled();
-    chassis->moveDistance(-8.5_ft);
+void RobotClass::autonomous() {    
+    Lift->moveUntimed(-127);
+    Drivetrain->moveUntimed(100);
+    pros::delay(900);
+    Lift->moveUntimed(0);
+    pros::delay(300);
+    Drivetrain->moveUntimed(0);
+    Drivetrain->reverse(true, false);
+    Drivetrain->goToHeading(0, 250, 100);
+    Drivetrain->reverse(false, true);
+    Lift->move(127, 500);
+    Drivetrain->move(-100, 750, 15);
+    Drivetrain->reverse(true, false);
+    Drivetrain->goToHeading(120, 500, 100);
+    Drivetrain->reverse(false, true);
+    Drivetrain->move(100, 600, 0);
+    Lift->move(-127, 100);
+    Drivetrain->move(-100, 600, 15);
+    Drivetrain->reverse(true, false);
+    Drivetrain->goToHeading(322, 500, 100);
+    Drivetrain->reverse(false, true);
+    Drivetrain->move(100, 1000, 0);
+    Lift->move(127, 900);
+    Drivetrain->move(-100, 1000, 15);
+    Drivetrain->reverse(true, false);
+    Drivetrain->goToHeading(120, 500, 100);
+    Drivetrain->reverse(false, true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -85,6 +75,5 @@ void RobotClass::autonomous() {
 //////////////////////////////////////////////////////////////////////////////
 void RobotClass::opcontrol() {
     // Send 'leftVal' and 'rightVal' to the drivetrain motors
-    //Drivetrain->update(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y));
-    cout << Drivetrain->getHeading() << endl;
+    Drivetrain->update(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y));
 }

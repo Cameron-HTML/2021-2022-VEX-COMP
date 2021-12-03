@@ -24,10 +24,15 @@ class DrivetrainClass {
         void driveTrainRight(int speed);
         void driveTrainTurn(int speed);
 
+        void move(int speed, int time, int diff);
+        void moveUntimed(int speed);
+
         int timerValue(float seconds);
         float inchToTicks(float inch);
         void goToHeading(float target, float waitTime, int maxPower);
-        void driveDistance(float target, float heading, float waitTime, int maxPower);
+        void driveDistance(float target, float waitTime, int maxPower, int rampTimeGiven);
+
+        void reverse(bool leftRev, bool rightRev);
         
         float getHeading();
 

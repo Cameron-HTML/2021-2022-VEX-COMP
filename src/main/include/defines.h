@@ -6,8 +6,8 @@
 #define drivetrainFrontRight 5
 #define drivetrainBackRight 20
 
-#define fourBarMotor 15
-
-#define fingerMotor 6
+#define fourBarMotorPort 15
+#define fingerMotorPort 16
+#define liftMotorPort 4
 
 #define IMUSensor 9

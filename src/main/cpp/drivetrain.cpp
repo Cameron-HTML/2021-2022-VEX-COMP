@@ -3,12 +3,16 @@
 #include "../include/defines.h"
 
 DrivetrainClass::DrivetrainClass() :
-    frontLeftMotor(drivetrainFrontLeft, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_COUNTS),
-    backLeftMotor(drivetrainBackLeft, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_COUNTS),
-    frontRightMotor(drivetrainFrontRight, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_COUNTS),
-    backRightMotor(drivetrainBackRight, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_COUNTS),
+    frontLeftMotor(drivetrainFrontLeft, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS),
+    backLeftMotor(drivetrainBackLeft, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_COUNTS),
+    frontRightMotor(drivetrainFrontRight, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS),
+    backRightMotor(drivetrainBackRight, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_COUNTS),
     IMU(IMUSensor)
 {
+    frontLeftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+    backLeftMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+    frontRightMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+    backRightMotor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 }
 
 void DrivetrainClass::update(int leftVal, int rightVal) {
@@ -28,11 +32,41 @@ void DrivetrainClass::driveTrainRight(int speed) {
     backRightMotor.move(speed);
 }
 
+void DrivetrainClass::move(int speed, int time, int diff) {
+    frontLeftMotor.move(speed);
+    frontRightMotor.move(speed - diff);
+    backLeftMotor.move(speed);
+    backRightMotor.move(speed - diff);
+    pros::delay(time);
+    frontLeftMotor.move(0);
+    frontRightMotor.move(0);
+    backLeftMotor.move(0);
+    backRightMotor.move(0);
+}
+
+void DrivetrainClass::moveUntimed(int speed) {
+    frontLeftMotor.move(speed);
+    frontRightMotor.move(speed);
+    backLeftMotor.move(speed);
+    backRightMotor.move(speed);
+}
+
 void DrivetrainClass::driveTrainTurn(int speed) {
     frontLeftMotor.move(speed);
     backLeftMotor.move(speed);
     frontRightMotor.move(-speed);
     backRightMotor.move(-speed);
+}
+
+void DrivetrainClass::reverse(bool leftRev, bool rightRev) {
+    frontLeftMotor.tare_position();
+    frontRightMotor.tare_position();
+
+    frontLeftMotor.set_reversed(leftRev);
+    backLeftMotor.set_reversed(leftRev);
+    frontRightMotor.set_reversed(rightRev);
+    backRightMotor.set_reversed(rightRev);
+    pros::delay(500);
 }
 
 float DrivetrainClass::getHeading() {
@@ -49,6 +83,8 @@ float DrivetrainClass::inchToTicks(float inch) {
 
 void DrivetrainClass::hardReset() {
     IMU.reset();
+    frontLeftMotor.tare_position();
+    frontRightMotor.tare_position();
 
     while(IMU.is_calibrating()) pros::delay(10);
 }
@@ -64,133 +100,14 @@ int DrivetrainClass::timerValue(float seconds) {
     return milliSeconds;
 }
 
-void DrivetrainClass::driveDistance(float target, float heading, float waitTime, int maxPower) {
-    cout << "PID start" << endl;
-
-    // PID variables decloration and initialization
-    float kP = .34;
-    float kI = 0.0;
-    float kD = 0.0;
-    float angleKP = 0.03;
-
-    float offset = 0;
-
-    // Variable for the raw intergral value
-    float intergralRaw = 0;
-
-    // Variable so the robot know when it should use intergral
-    float intergralActiveZone = inchToTicks(10);
-
-    // Variable to limit the value of intergral
-    float intergralPowerLimit = 50 / kI;
-
-    // Variable to track last error
-    float lastError = 0;
-
-    // Final output power/speed
-    int finalPower = 0;
-
-    // Variable to let the PID know when to start the timer
-    bool startTime = false;
-
-    // Variable to log the time when the timer starts
-    int currentTime = 0;
-
-    // Convert our waitTimer to milliseconds
-    timerValue(waitTime);
-
-    cout << "target: " << inchToTicks(target) << endl;
-
-    while(currentTime < waitTime) {
-        //cout << "Running" << endl;
-        // Calculate how far the robot is from the target
-
-        // Scale error so PID constants arent as large
-        float position = ((frontLeftMotor.get_position() + frontRightMotor.get_position()) / 2);
-
-        float error = inchToTicks(target) - position;
-
-        // Calculate the proportion
-        float proportion = kP * error;
-
-        // Check if intergral should be used
-        if(abs(error) < intergralActiveZone && error != 0) {
-            intergralRaw += error;
-        } else {
-            intergralRaw = 0;
-        }
-
-        // Limit the raw intergral
-        if(intergralRaw > intergralPowerLimit) {
-            intergralRaw = intergralPowerLimit;
-        } else if(intergralRaw < -intergralPowerLimit) {
-            intergralRaw = -intergralPowerLimit;
-        }
-
-        // Scale intergral
-        float intergral = kI * intergralRaw;
-
-        // Calculate derivative
-        float derivative = kD * (error - lastError);
-        
-        // Update last error
-        lastError = error;
-
-        // Set derivative to 0 if at target
-        if(error == 0) {
-            derivative = 0;
-        }
-
-        // Calculate the final power to send to the motors
-        finalPower = proportion + intergral + derivative;
-
-        cout << "Final power: " << finalPower << endl;
-
-        // Limit final power
-        if(finalPower > maxPower) {
-            finalPower = maxPower;
-        } else if(finalPower < -maxPower) {
-            finalPower = -maxPower;
-        }
-
-        float angleError = heading + getHeading();
-
-        float angleProportion = angleKP * angleError;
-
-        // Set motors to final power
-        driveTrainLeft(finalPower - angleProportion);
-        driveTrainRight(finalPower + angleProportion);
-
-        // Start the timer
-        if(abs(error) < 25) {
-            startTime = true;
-        }
-
-        // Set timer values
-        if(startTime) {
-            if(currentTime == 0) {
-                currentTime = pros::millis();
-                waitTime += currentTime;
-                cout << "Wait time: " << waitTime << endl;
-            }
-            currentTime = pros::millis();
-        }
-
-        // Delay code to stop CPU hoggin
-        pros::delay(20);
-    }
-    driveTrainLeft(0);
-    driveTrainRight(0);
-}
-
 // Function for the Turn PID control
 void DrivetrainClass::goToHeading(float target, float waitTime, int maxPower) {
     cout << "PID start" << endl;
 
     // PID variables decloration and initialization
-    float kP = 14.5;
-    float kI = 0.001;
-    float kD = 36.0; // 14.0
+    float kP = 13.5;
+    float kI = 0.01;
+    float kD = 38.0; // 14.0
 
     float offset = 0;
 
