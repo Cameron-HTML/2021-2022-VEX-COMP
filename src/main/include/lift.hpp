@@ -1,5 +1,5 @@
-#ifndef FOURBAR_HPP
-    #define FOURBAR_HPP
+#ifndef LIFT_HPP
+    #define LIFT_HPP
 
 // Include header files
 #include "api.h"
@@ -13,13 +13,21 @@ class LiftClass {
     private:
         pros::Motor liftMotor;
 
+        std::shared_ptr<AsyncPositionController<double, double>> liftControl;
+
+        int height = 0;
+        const int heights[3] = {0, 1100, 1000};
+
+        bool upPressed = false;
+        bool downPressed = false;
+
     public:
         LiftClass();
 
         void move(int speed, int time);
         void moveUntimed(int speed);
-        void update();
+        void update(bool up, bool down);
         void hardReset();
 };
 
-#endif // FOURBAR_HPP
+#endif // LIFT_HPP

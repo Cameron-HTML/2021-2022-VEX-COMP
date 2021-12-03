@@ -11,12 +11,16 @@ using namespace okapi;
 
 class FourBarClass {
     private:
-        //pros::Motor fourBarMotor;
+        pros::Motor fourBarMotor;
+        pros::ADIDigitalOut finger;
+
+        bool state = LOW;
+        bool lastState = LOW;
 
     public:
         FourBarClass();
 
-        void update();
+        void update(bool up, bool down, bool open, bool close);
         void hardReset();
 };
 

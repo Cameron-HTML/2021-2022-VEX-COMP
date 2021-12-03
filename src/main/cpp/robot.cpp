@@ -13,6 +13,7 @@ RobotClass::RobotClass() :
 {
     Drivetrain = new DrivetrainClass();
     Lift = new LiftClass();
+    FourBar = new FourBarClass();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -76,4 +77,8 @@ void RobotClass::autonomous() {
 void RobotClass::opcontrol() {
     // Send 'leftVal' and 'rightVal' to the drivetrain motors
     Drivetrain->update(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_RIGHT_Y));
+
+    FourBar->update(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1), master.get_digital(pros::E_CONTROLLER_DIGITAL_R2), master.get_digital(pros::E_CONTROLLER_DIGITAL_Y), master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT));
+
+    Lift->update(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1), master.get_digital(pros::E_CONTROLLER_DIGITAL_L2));
 }

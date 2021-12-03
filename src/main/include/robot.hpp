@@ -10,6 +10,7 @@
 
 #include "../include/drivetrain.hpp"
 #include "../include/lift.hpp"
+#include "../include/fourBar.hpp"
 
 // Namespaces
 using namespace std;
@@ -23,13 +24,12 @@ class RobotClass {
 
         // Init variables
         int threshold = 15;
-        // -1 for mirror || 1 for normal
-        int isMirrored = 1;
         int leftVal = 0;
         int rightVal = 0;
     public:
         // Init pointers
         DrivetrainClass* Drivetrain;
+        FourBarClass* FourBar;
         LiftClass* Lift;
 
         RobotClass();
